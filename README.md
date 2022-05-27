@@ -23,7 +23,7 @@ If you come from link in paper, please go [old version](https://github.com/maksi
 > Этот раздел будет дополнен
 
 ## Полезные ссылки
-1. (csiread)[https://github.com/citysu/csiread] - библиотека, которая очень быстро декодирует dat-файлы с CSI внутри. Существенно (10 раз) превосходит по скорости мое решение в [csi_classification_legacy](https://github.com/maksimio/csi_classification_legacy)
-2. (Проект Atheros CSI Tool)[https://github.com/xieyaxiongfly/Atheros-CSI-Tool-UserSpace-APP] - чтение csi при помощи MATLAB. [Это](https://wands.sg/research/wifi/AtherosCSI/) один из самых ранних проектов по CSI, из которого вырос мой проект. В списке репозиториев автора присутствуют собранные прошивки OpenWRT и другие полезные вещи по проекту. К сожалению, готовые прошивки устарели и содержат баги
+1. [csiread](https://github.com/citysu/csiread) - библиотека, которая очень быстро декодирует dat-файлы с CSI внутри. Существенно (10 раз) превосходит по скорости мое решение в [csi_classification_legacy](https://github.com/maksimio/csi_classification_legacy)
+2. [Проект Atheros CSI Tool](https://github.com/xieyaxiongfly/Atheros-CSI-Tool-UserSpace-APP) - чтение csi при помощи MATLAB. [Это](https://wands.sg/research/wifi/AtherosCSI/) один из самых ранних проектов по CSI, из которого вырос мой проект. В списке репозиториев автора присутствуют собранные прошивки OpenWRT и другие полезные вещи по проекту. К сожалению, готовые прошивки устарели и содержат баги
 3.  [ESP32-CSI-Tool](https://github.com/StevenMHernandez/ESP32-CSI-Tool) - работа с CSI через ESP32 Wi-Fi
 4. [CSIKit](https://github.com/Gi-z/CSIKit) - библиотека для чтения, обработки и визуализации CSI с относительно большой докуменацией. Также содержит ссылки на другие репозитории и сайты по тематике CSI
