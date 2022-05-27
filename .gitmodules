@@ -1,0 +1,3 @@
+[submodule "csidata"]
+	path = csidata
+	url = https://github.com/maksimio/csidata
