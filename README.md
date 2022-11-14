@@ -4,7 +4,7 @@
 <p align="center">
   <a href="https://github.com/maksimio/csidata">CSI data</a> |
   <a href="https://github.com/maksimio/csidealer">CSI dealer</a> |
-  <a href="https://github.com/maksimio/csifirmware">CSI openwrt</a>
+  <a href="https://github.com/maksimio/csiopenwrt">CSI openwrt</a>
 </p>
 
 # О проекте
@@ -16,7 +16,7 @@
 2. 🌑[csi_classification_legacy](https://github.com/maksimio/csi_classification_legacy) - первая версия репозитория
 3. 📂[csidata](https://github.com/maksimio/csidata) - данные экспериментов с детальным описанием, а также общая информация об организации экспериментов и настройке маршрутизаторов
 4. 📈[csidealer](https://github.com/maksimio/csidealer) - клиент и сервер для удобной работы с CSI в реальном времени
-5. 📑[csiopenwrt](https://github.com/maksimio/csifirmware) - все, что связано с прошивкой OpenWRT для сбора CSI с акцентом на модель маршрутизатора TL-WR842NDv2. Сброс прошивки + ПО для сброса, сборка из исходников OpenWRT с добавлением функционала, готовые прошивки
+5. 📑[csiopenwrt](https://github.com/maksimio/csiopenwrt) - все, что связано с прошивкой OpenWRT для сбора CSI с акцентом на модель маршрутизатора TL-WR842NDv2. Сброс прошивки + ПО для сброса, сборка из исходников OpenWRT с добавлением функционала, готовые прошивки
 
 ## Научные работы
 По данной теме [можно найти](https://scholar.google.com/scholar?hl=ru&as_sdt=0%2C5&q=channel+state+information+wi-fi&oq=channel+state+information) большое количество научных работ.
