@@ -34,21 +34,18 @@ def categorize(lst: List[DirEntry], categories: List[str]) -> dict[str, List[Dir
     return catsPathes
 
 
-def extractCSI(fpath: str) -> np.ndarray:
-    data = csiread.Atheros(fpath, nrxnum=2, ntxnum=5,
-                           tones=56, if_report=False)
+def getCSI(fpath: str) -> np.ndarray:
+    '''Извлечение CSI. Фильтр по payload, обрезка массива до nr=2 nc=2'''
+    data = csiread.Atheros(fpath, nrxnum=2, ntxnum=5, tones=56, if_report=False)
     data.read(endian='big')
     payload_len = np.bincount(data.payload_len).argmax()
-    csi = data.csi[(data.payload_len == payload_len)
-                   & (data.nc == 2)][:, :, :2, :2]
+    csi = data.csi[(data.payload_len == payload_len) & (data.nc == 2)][:, :, :2, :2]
     return csi
 
 
 # Также функции множественного считывания файлов по корневому пути
-
 def extractFrom(fdir: List[str]):
     data = []
     for fname in scandir(fdir):
-        data.append({'filename': fname, 'csi': extractCSI(fdir + '/' + fname)})
-
+        data.append({'filename': fname, 'csi': getCSI(fdir + '/' + fname)})
     return data
