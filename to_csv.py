@@ -1,27 +1,39 @@
 import numpy as np
 import pandas as pd
 from processing import process, read
+from os.path import join
 
+EXPERIMENT_DIR = './csidata/1_distortion_objects'
+OUTPUT_DIR = 'out'
+EXPERIMENTS = {'1': 'базовый', 
+                 '2': 'с бутылкой сбоку',
+                 '3': 'со стулом',
+                 '4': 'дистанция 3 метра',
+                 '5': 'в другом помещении',
+                 '6': 'базовый - повтор'}
+OBJECTS2 = {'empty': 'нет объекта',
+            'bottle':'термос',
+            'casserole':'кастрюля',
+            'grater': 'терка'}
 
-def df_from_file(filepath):
+def df_from_file(filepath: str, experiment: str, target: str):
   csi = read.getCSI(filepath)
   am = process.extractAm(csi)
   am = process.reshape224x1(am)
   df = pd.DataFrame(am)
-  df['target'] = filepath.split('/')[-1].split('.')[0]
+  df['experiment'] = experiment
+  df['target'] = target
   return df
 
-
-object_names = ['empty', 'bottle', 'casserole', 'grater']
 dfs = []
-for on in object_names:
-  filepath = './csidata/1_distortion_objects/1/' + on + '.dat'
-  df = df_from_file(filepath)
-  dfs.append(df)
+for exp_name, exp_description in EXPERIMENTS.items():
+  for obj_name, obj_description in OBJECTS2.items():
+    filepath = join(EXPERIMENT_DIR, exp_name, obj_name + '.dat')
+    df = df_from_file(filepath, exp_description, obj_description)
+    dfs.append(df)
 
 df = pd.concat(dfs)
-# print(df)
-df.to_csv('out.csv', index=False)
+df.to_csv(join(OUTPUT_DIR, 'out.csv'), index=False)
 
 df_lst = []
 for i in range(int(df.shape[1] / 56)):
@@ -36,24 +48,8 @@ for i in range(int(df.shape[1] / 56)):
   newDf['kurt_' + str(i)] = item.kurt(axis=1)
   df_lst.append(newDf)
 
+df_lst.append(df['experiment'])
 df_lst.append(df['target'])
 newDf = pd.concat(df_lst, axis=1)
 print(newDf)
-newDf.to_csv('out2.csv', index=False)
-
-  # self.__df_csi_lst = []
-  # for i in range(int(df.shape[1] / self.__num_tones)):
-  #     item = df[[k + i*self.__num_tones for k in range(0, self.__num_tones)]]
-  #     self.__df_csi_lst.append(item)
-
-        # i = 1
-        # for df_part in self.__df_csi_lst:
-        #     df['std_' + str(i)] = df_part.std(axis=1)
-        #     # df['ymax_' + str(i)] = pd.DataFrame(np.fft.fft(df_part.sub(df_part.mean(axis=1)) - 1, axis=1)).abs().max() ** 2 / df.shape[1]
-        #     df['mu42_' + str(i)] = (df_part ** 4).mean(axis=1) / ((df_part ** 2).mean(axis=1) ** 4)
-        #     df['ln_' + str(i)] = np.log(df_part.mean(axis=1))
-        #     df['mu32_' + str(i)] = (df_part ** 3).mean(axis=1) / ((df_part ** 2).mean(axis=1) ** (3 / 2))
-        #     df['skew_' + str(i)] = df_part.skew(axis=1)
-        #     df['kurt_' + str(i)] = df_part.kurt(axis=1)
-        #     i += 1
-        
+newDf.to_csv(join(OUTPUT_DIR, 'out-признаки.csv'), index=False)
