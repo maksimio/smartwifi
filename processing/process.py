@@ -19,13 +19,30 @@ def chunks(csi: np.ndarray, height=None) -> np.ndarray:
 def extractAm(csi: np.ndarray) -> np.ndarray:
     return np.abs(csi)
 
-def extractPh(csi: np.ndarray) -> np.ndarray:
+def extractPh(csi: np.ndarray, unwrap=False) -> np.ndarray:
     '''Фазы выпрямляются при переходе через границу 2PI'''
-    axis = np.argwhere((np.array(csi.shape) == 56) | (np.array(csi.shape) == 114))[0][0]
-    ph = np.unwrap(np.angle(csi), axis=axis)
-    return np.angle(csi)
+    ph = np.angle(csi)
+    if unwrap:
+        axis = np.argwhere((np.array(csi.shape) == 56) | (np.array(csi.shape) == 114))[0][0]
+        ph = np.unwrap(ph, axis=axis)
+    return ph
     # return csiread.utils.calib(ph, k=csiread.utils.scidx(40, 1), axis=axis)
 
 
 def down(csi: np.ndarray) -> np.ndarray:
     return csi - csi.min()
+
+def swap2axes(csi: np.ndarray) -> np.ndarray:
+    return csi.swapaxes(1, 0)
+
+def moving_average(x, w):
+    return np.convolve(x, np.ones(w), 'valid') / w
+
+def moving_average2(a, n=3):
+    ret = np.cumsum(a, axis=1, dtype=float)
+    ret[n:] = ret[n:] - ret[:-n]
+    return ret[n - 1:] / n
+
+def autocorr(x):
+    result = np.correlate(x, x, mode='full')
+    return result[int(result.size/2):] / np.max(result)

@@ -9,7 +9,8 @@ def imsave(fpath: str, csi: np.ndarray, maxHeight=500) -> None:
   cv2.imwrite(fpath, csi)
 
 def imshow() -> None:
-    ...
+  ...
 
-def plot() -> None:
-    ...
+def plotLine(csi: np.ndarray, lineIndex=0) -> None:
+  plt.plot(csi[lineIndex])
+  plt.show()
