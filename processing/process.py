@@ -45,3 +45,8 @@ def filter1dUniform(arr: np.ndarray, size=10, axis=-1) -> np.ndarray:
 def diff1d(arr: np.array, n=1, axis=-1) -> np.ndarray:
     '''Производная порядка n'''
     return np.diff(arr, n=n, axis=axis)
+
+def splitLen(arr: np.array, count: int) -> list:
+    split = np.array_split(arr, len)
+    print(split[-2].shape)
+    return 

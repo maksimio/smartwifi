@@ -23,17 +23,24 @@ plt.plot(car[25])
 plt.plot(gauss[25])
 plt.show()
 
-# 4. Автокоррелограмма
-view.autocorr(am[42])
+# # 4. Автокоррелограмма
+# view.autocorr(am[42])
 
-# 5. Спектр numpy
-f = np.abs(np.fft.fft(am, axis=1))
-plt.plot(f[2])
-plt.show()
+# # 5. Спектр numpy
+# f = np.abs(np.fft.fft(am, axis=0))
+# plt.plot(f[2])
+# plt.show()
 
-# 5. Спектр scipy
-f, t, Sxx = signal.spectrogram(tl[3])
-plt.pcolormesh(t, f, Sxx, shading='gouraud')
-plt.ylabel('Frequency [Hz]')
-plt.xlabel('Time [sec]')
-plt.show()
+# # 5. Спектр scipy
+# f, t, Sxx = signal.spectrogram(tl[3])
+# plt.pcolormesh(t, f, Sxx, shading='gouraud')
+# plt.ylabel('Frequency [Hz]')
+# plt.xlabel('Time [sec]')
+# plt.show()
+
+# 6. Разбиение данных на чанки заданной длины
+print(am.shape)
+process.splitLen(am, 6)
+
+## Посмотреть SOM - Self-organized map
+## Сеть кохонена. Нейроны типа WTA (winner takes all)
