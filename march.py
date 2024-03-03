@@ -5,7 +5,7 @@ from keras.layers import Dense, Dropout, LSTM, Conv1D, MaxPooling1D, Flatten, Ti
 from keras.utils import to_categorical
 
 def evaluate_LSTM(trainX, trainy, testX, testy):
-	verbose, epochs, batch_size = 1, 15, 64
+	verbose, epochs, batch_size = 0, 15, 64
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	model = Sequential()
 	model.add(LSTM(100, input_shape=(n_timesteps, n_features)))
@@ -76,6 +76,7 @@ def prep_dataset(rootdir):
 train_x, train_y = prep_dataset('./csidata/1_distortion_objects/1')
 test_x, test_y = prep_dataset('./csidata/1_distortion_objects/2')
 
-print('\n-----Точность LSTM:', evaluate_LSTM(train_x ,train_y, test_x, test_y))
-print('\n-----Точность CNN_LSTM:', evaluate_CNN_LSTM(train_x ,train_y, test_x, test_y))
-print('\n-----Точность ConvLSTM2D:', evaluate_ConvLSTM2D(train_x ,train_y, test_x, test_y))
+for i in range(10):
+	print('\n-----Точность LSTM:', evaluate_LSTM(train_x ,train_y, test_x, test_y))
+# print('\n-----Точность CNN_LSTM:', evaluate_CNN_LSTM(train_x ,train_y, test_x, test_y))
+# print('\n-----Точность ConvLSTM2D:', evaluate_ConvLSTM2D(train_x ,train_y, test_x, test_y))
