@@ -11,11 +11,17 @@ def reshape224x1(csi: np.ndarray) -> np.ndarray:
     csi = reshape4x56(csi)
     return np.reshape(csi, (csi.shape[0], -1))
 
-# Нарезка по первой размерности по заданному чанку (по умолчанию - квадрат).
-# Неполный чанк в конце отбрасывается
-def chunks(csi: np.ndarray, height=None) -> np.ndarray:
-    if height == None:
-        height = csi.shape[0]
+def to_timeseries(dataset, split_len = 100, step = 100):
+	'''Преобразует dataset, где первая размерность - отсчеты во времени
+	в датасет, где первая размерность - индексы для групп отсчетов во времени.
+	Увеличивает shape на 1. split_len - длина временной последовательности, step - шаг выборки временных последовательностей.
+	В случае, когда step >= split_len, выбранные последовательности не имеют пересечений'''
+	conc = np.ndarray((0, split_len, *dataset.shape[1:]))
+	count = dataset.shape[0]
+	for i, j in zip(range(0, count - split_len, step), range(split_len, count, step)):
+		d = dataset[i:j]
+		conc = np.concatenate([conc, d.reshape(1, *d.shape)])
+	return conc
 
 def extractAm(csi: np.ndarray) -> np.ndarray:
     return np.abs(csi)

@@ -57,6 +57,9 @@ def load_dataset(prefix=''):
 def evaluate_LSTM(trainX, trainy, testX, testy):
 	verbose, epochs, batch_size = 1, 15, 64
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
+	print(trainX.shape, trainy.shape)
+	print(trainy)
+	exit()
 	model = Sequential()
 	model.add(LSTM(100, input_shape=(n_timesteps,n_features)))
 	model.add(Dropout(0.5))
