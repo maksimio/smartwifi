@@ -23,7 +23,7 @@ def evaluate_CNN_LSTM(trainX, trainy, testX, testy):
 	verbose, epochs, batch_size = 1, 25, 64
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	# reshape data into time steps of sub-sequences
-	n_steps, n_length = 4, 32
+	n_steps, n_length = -1, 32
 	trainX = trainX.reshape((trainX.shape[0], n_steps, n_length, n_features))
 	testX = testX.reshape((testX.shape[0], n_steps, n_length, n_features))
 	# define model
@@ -47,12 +47,12 @@ def evaluate_ConvLSTM2D(trainX, trainy, testX, testy):
 	verbose, epochs, batch_size = 1, 25, 64
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	# reshape into subsequences (samples, time steps, rows, cols, channels)
-	n_steps, n_length = 4, 32
+	n_steps, n_length = -1, 32
 	trainX = trainX.reshape((trainX.shape[0], n_steps, 1, n_length, n_features))
 	testX = testX.reshape((testX.shape[0], n_steps, 1, n_length, n_features))
 	# define model
 	model = Sequential()
-	model.add(ConvLSTM2D(filters=64, kernel_size=(1,3), activation='relu', input_shape=(n_steps, 1, n_length, n_features)))
+	model.add(ConvLSTM2D(filters=64, kernel_size=(1,3), activation='relu', input_shape=(trainX.shape[1], 1, n_length, n_features)))
 	model.add(Dropout(0.5))
 	model.add(Flatten())
 	model.add(Dense(100, activation='relu'))
