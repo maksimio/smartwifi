@@ -1,5 +1,6 @@
 import numpy as np
 from scipy import ndimage
+from sklearn.preprocessing import normalize, MinMaxScaler
 
 # Преобразование к виду 56 x 4 - амплитуды или фазы
 def reshape4x56(csi: np.ndarray) -> np.ndarray:
@@ -44,7 +45,7 @@ def filter1dGauss(arr: np.ndarray, sigma=10, axis=-1) -> np.ndarray:
     '''Фильтр гаусса'''
     return ndimage.gaussian_filter1d(arr, sigma, axis)
 
-def filter1dUniform(arr: np.ndarray, size=10, axis=-1) -> np.ndarray:
+def filter1dUniform(arr: np.ndarray, size=100, axis=-1) -> np.ndarray:
     '''Фильтр скользящего среднего'''
     return ndimage.uniform_filter1d(arr, size, axis)
 
@@ -56,3 +57,9 @@ def splitLen(arr: np.array, count: int) -> list:
     split = np.array_split(arr, len)
     print(split[-2].shape)
     return 
+
+def norm(arr: np.array):
+    # scaler = MinMaxScaler(feature_range=(0, 1))
+    # return scaler.fit_transform(arr.T).T
+    # return arr / np.max(arr)
+    return arr / 500

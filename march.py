@@ -1,3 +1,4 @@
+import pandas as pd
 from processing import read, process
 import numpy as np
 from keras.models import Sequential
@@ -5,7 +6,7 @@ from keras.layers import Dense, Dropout, LSTM, Conv1D, MaxPooling1D, Flatten, Ti
 from keras.utils import to_categorical
 
 def evaluate_LSTM(trainX, trainy, testX, testy):
-	verbose, epochs, batch_size = 0, 15, 64
+	verbose, epochs, batch_size = 0, 2, 32
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	model = Sequential()
 	model.add(LSTM(100, input_shape=(n_timesteps, n_features)))
@@ -20,7 +21,7 @@ def evaluate_LSTM(trainX, trainy, testX, testy):
 
 def evaluate_CNN_LSTM(trainX, trainy, testX, testy):
 	# define model
-	verbose, epochs, batch_size = 1, 25, 64
+	verbose, epochs, batch_size = 0, 2, 32
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	# reshape data into time steps of sub-sequences
 	n_steps, n_length = -1, 32
@@ -44,7 +45,7 @@ def evaluate_CNN_LSTM(trainX, trainy, testX, testy):
 
 def evaluate_ConvLSTM2D(trainX, trainy, testX, testy):
 	# define model
-	verbose, epochs, batch_size = 1, 25, 64
+	verbose, epochs, batch_size = 0, 2, 32
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	# reshape into subsequences (samples, time steps, rows, cols, channels)
 	n_steps, n_length = -1, 32
@@ -64,10 +65,19 @@ def evaluate_ConvLSTM2D(trainX, trainy, testX, testy):
  
 def prep_dataset(rootdir):
 	cats = read.categorize(read.listdirs(rootdir), ['bottle', 'empty'])
+
 	csi = read.getCSI(cats['bottle'][0].path)
-	csi_b = process.to_timeseries(process.extractAm(csi.reshape(csi.shape[0], -1)))
+	csi = process.extractAm(csi.reshape(csi.shape[0], -1))
+	csi = process.filter1dUniform(csi, 15, 0)
+	csi = process.norm(csi)
+	csi_b = process.to_timeseries(csi)
+
 	csi = read.getCSI(cats['empty'][0].path)
-	csi_e = process.to_timeseries(process.extractAm(csi.reshape(csi.shape[0], -1)))
+	csi = process.extractAm(csi.reshape(csi.shape[0], -1))
+	csi = process.filter1dUniform(csi, 15, 0)
+	csi = process.norm(csi)
+	csi_e = process.to_timeseries(csi)
+
 	y_b = np.tile(np.array([0, 1]), (csi_b.shape[0], 1))
 	y_e = np.tile(np.array([1, 0]), (csi_e.shape[0], 1))
 	return np.concatenate([csi_b, csi_e]), np.concatenate([y_b, y_e])
@@ -75,8 +85,12 @@ def prep_dataset(rootdir):
 
 train_x, train_y = prep_dataset('./csidata/1_distortion_objects/1')
 test_x, test_y = prep_dataset('./csidata/1_distortion_objects/2')
+df = pd.DataFrame(test_y)
+print('Не работает распознавание:', df[1].sum() / df.shape[0])
 
+
+np.random.seed = 42
 for i in range(10):
-	print('\n-----Точность LSTM:', evaluate_LSTM(train_x ,train_y, test_x, test_y))
-# print('\n-----Точность CNN_LSTM:', evaluate_CNN_LSTM(train_x ,train_y, test_x, test_y))
-# print('\n-----Точность ConvLSTM2D:', evaluate_ConvLSTM2D(train_x ,train_y, test_x, test_y))
+	print(i, '-----Точность LSTM:', evaluate_LSTM(train_x ,train_y, test_x, test_y))
+	print(i, '-----Точность CNN_LSTM:', evaluate_CNN_LSTM(train_x ,train_y, test_x, test_y))
+	print(i, '-----Точность ConvLSTM2D:', evaluate_ConvLSTM2D(train_x ,train_y, test_x, test_y))
