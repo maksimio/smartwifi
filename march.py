@@ -5,10 +5,10 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM, GRU, Conv1D, MaxPooling1D, Flatten, TimeDistributed, ConvLSTM2D
 from keras.utils import to_categorical
 from sklearn import ensemble, metrics, neighbors
-from keras import initializers
+from keras import initializers, optimizers
 
 def evaluate_LSTM(trainX, trainy, testX, testy):
-	verbose, epochs, batch_size = 0, 15, 32
+	verbose, epochs, batch_size = 0, 20, 32
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	model = Sequential()
 	model.add(LSTM(
@@ -21,12 +21,12 @@ def evaluate_LSTM(trainX, trainy, testX, testy):
 	))
 	model.add(Dense(
 		25, 
-		activation='selu', 
+		activation='selu',
 		kernel_initializer=initializers.GlorotUniform(), 
 		bias_initializer=initializers.TruncatedNormal(mean=1, stddev=0.3)
 	))
 	model.add(Dense(n_outputs, activation='softmax'))
-	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+	model.compile(loss='categorical_crossentropy', optimizer=optimizers.SGD(momentum=0.4), metrics=['accuracy'])
 	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose)
 	_, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=0)
 	return accuracy
