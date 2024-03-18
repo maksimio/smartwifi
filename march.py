@@ -2,16 +2,29 @@ import pandas as pd
 from processing import read, process
 import numpy as np
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, LSTM, Conv1D, MaxPooling1D, Flatten, TimeDistributed, ConvLSTM2D
+from keras.layers import Dense, Dropout, LSTM, GRU, Conv1D, MaxPooling1D, Flatten, TimeDistributed, ConvLSTM2D
 from keras.utils import to_categorical
+from sklearn import ensemble, metrics, neighbors
+from keras import initializers
 
 def evaluate_LSTM(trainX, trainy, testX, testy):
-	verbose, epochs, batch_size = 0, 2, 32
+	verbose, epochs, batch_size = 0, 15, 32
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	model = Sequential()
-	model.add(LSTM(100, input_shape=(n_timesteps, n_features)))
-	model.add(Dropout(0.5))
-	model.add(Dense(100, activation='relu'))
+	model.add(LSTM(
+		50, 
+		input_shape=(n_timesteps, n_features), 
+		kernel_initializer=initializers.GlorotUniform(), 
+		bias_initializer=initializers.Zeros(),
+		recurrent_dropout=0.3,
+		dropout=0.4
+	))
+	model.add(Dense(
+		25, 
+		activation='selu', 
+		kernel_initializer=initializers.GlorotUniform(), 
+		bias_initializer=initializers.TruncatedNormal(mean=1, stddev=0.3)
+	))
 	model.add(Dense(n_outputs, activation='softmax'))
 	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose)
@@ -21,7 +34,7 @@ def evaluate_LSTM(trainX, trainy, testX, testy):
 
 def evaluate_CNN_LSTM(trainX, trainy, testX, testy):
 	# define model
-	verbose, epochs, batch_size = 0, 2, 32
+	verbose, epochs, batch_size = 1, 2, 32
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	# reshape data into time steps of sub-sequences
 	n_steps, n_length = -1, 32
@@ -45,7 +58,7 @@ def evaluate_CNN_LSTM(trainX, trainy, testX, testy):
 
 def evaluate_ConvLSTM2D(trainX, trainy, testX, testy):
 	# define model
-	verbose, epochs, batch_size = 0, 2, 32
+	verbose, epochs, batch_size = 1, 2, 32
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	# reshape into subsequences (samples, time steps, rows, cols, channels)
 	n_steps, n_length = -1, 32
@@ -88,9 +101,15 @@ test_x, test_y = prep_dataset('./csidata/1_distortion_objects/2')
 df = pd.DataFrame(test_y)
 print('Не работает распознавание:', df[1].sum() / df.shape[0])
 
+print('-----------------:')
 
-np.random.seed = 42
+# clf = neighbors.KNeighborsClassifier()
+# clf.fit(train_x, train_y)
+# acc = metrics.accuracy_score(test_y, clf.predict(test_x))
+# print('ACC:', acc)
+print(train_x.shape)
+# np.random.seed = 42
 for i in range(10):
-	print(i, '-----Точность LSTM:', evaluate_LSTM(train_x ,train_y, test_x, test_y))
-	print(i, '-----Точность CNN_LSTM:', evaluate_CNN_LSTM(train_x ,train_y, test_x, test_y))
-	print(i, '-----Точность ConvLSTM2D:', evaluate_ConvLSTM2D(train_x ,train_y, test_x, test_y))
+	print(i, '\n-----Точность LSTM:', evaluate_LSTM(train_x ,train_y, test_x, test_y))
+	# print(i, '\n-----Точность CNN_LSTM:', evaluate_CNN_LSTM(train_x ,train_y, test_x, test_y))
+	# print(i, '\n-----Точность ConvLSTM2D:', evaluate_ConvLSTM2D(train_x ,train_y, test_x, test_y))
