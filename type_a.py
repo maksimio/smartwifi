@@ -1,4 +1,3 @@
-import pandas as pd
 from sklearn.metrics import confusion_matrix
 from processing import read, process
 import numpy as np
