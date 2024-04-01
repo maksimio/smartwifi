@@ -12,7 +12,7 @@ def reshape224x1(csi: np.ndarray) -> np.ndarray:
     csi = reshape4x56(csi)
     return np.reshape(csi, (csi.shape[0], -1))
 
-def to_timeseries(dataset, split_len = 128, step = 64):
+def to_timeseries(dataset, split_len = 64, step = 64):
 	'''Преобразует dataset, где первая размерность - отсчеты во времени
 	в датасет, где первая размерность - индексы для групп отсчетов во времени.
 	Увеличивает shape на 1. split_len - длина временной последовательности, step - шаг выборки временных последовательностей.

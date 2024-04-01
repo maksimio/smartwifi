@@ -40,7 +40,7 @@ def evaluate_LSTM(trainX, trainy, testX, testy):
  
 def prep_dataset(rootdir: str, files, cats):
 	files = read.categorize(read.listdirs(rootdir), files)
-	Y, X, i = np.empty((0, len(cats))), np.empty((0, 128, 224)), 0
+	Y, X, i = np.empty((0, len(cats))), np.empty((0, 64, 224)), 0
 	for f in files:
 		csi = read.getCSI(files[f][0].path)
 		csi = process.extractAm(csi.reshape(csi.shape[0], -1))
@@ -58,10 +58,10 @@ files = [
 '-bottle.dat',
 '-vaze.dat',
 '-metal.dat',
-'-metal_vaze.dat',
-'-bottle_metal.dat',
-'-bottle_vaze.dat',
-'-bottle_metal_vaze.dat',
+# '-metal_vaze.dat',
+# '-bottle_metal.dat',
+# '-bottle_vaze.dat',
+# '-bottle_metal_vaze.dat',
 ]
 cats = ['bottle', 'vaze', 'metal']
 train_x, train_y = prep_dataset('./csidata/2_multiple/5/train', files, cats)

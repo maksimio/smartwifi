@@ -8,7 +8,7 @@ from keras import initializers, optimizers
 np.set_printoptions(edgeitems=30, linewidth=10000)
 
 def evaluate_LSTM(trainX, trainy, testX, testy):
-	verbose, epochs, batch_size = 0, 30, 16
+	verbose, epochs, batch_size = 1, 20, 16
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	model = Sequential()
 	model.add(LSTM(
@@ -118,10 +118,10 @@ cats = [
 '-bottle.dat',
 '-vaze.dat',
 '-metal.dat',
-'-metal_vaze.dat',
-'-bottle_metal.dat',
-'-bottle_vaze.dat',
-'-bottle_metal_vaze.dat',
+# '-metal_vaze.dat',
+# '-bottle_metal.dat',
+# '-bottle_vaze.dat',
+# '-bottle_metal_vaze.dat',
 ]
 train_x, train_y = prep_dataset('./csidata/2_multiple/5/train', cats)
 test_x, test_y = prep_dataset('./csidata/2_multiple/5/test', cats)
