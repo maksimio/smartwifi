@@ -1,3 +1,4 @@
+from sklearn import metrics
 from sklearn.metrics import confusion_matrix, multilabel_confusion_matrix
 from processing import read, process
 import numpy as np
@@ -9,7 +10,7 @@ np.set_printoptions(edgeitems=30, linewidth=10000)
 
 
 def evaluate_LSTM(trainX, trainy, testX, testy):
-	verbose, epochs, batch_size = 1, 8, 16
+	verbose, epochs, batch_size = 1, 5, 16
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	model = Sequential()
 	model.add(LSTM(
@@ -20,20 +21,27 @@ def evaluate_LSTM(trainX, trainy, testX, testy):
 		recurrent_dropout=0.2,
 		dropout=0.3
 	))
+	model.add(Dropout(0.7))
 	model.add(Dense(
 		100, 
 		activation='elu',
 		kernel_initializer=initializers.GlorotUniform(), 
 		bias_initializer=initializers.TruncatedNormal(mean=1, stddev=0.3)
 	))
+	model.add(Dropout(0.5))
 	model.add(Dense(n_outputs, activation='sigmoid'))
 	model.compile(loss='binary_crossentropy', optimizer=optimizers.SGD(momentum=0.6), metrics=['accuracy'])
 	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, shuffle=True)
 	_, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=0)
 
 	y_pred = model.predict(testX)
-	result = multilabel_confusion_matrix(testy, y_pred > 0.5)
-	print(result)
+	y_pred = y_pred > 0.5
+	# result = multilabel_confusion_matrix(testy, y_pred)
+
+	print("micro: {:.2f}".format(metrics.f1_score(testy, y_pred, average='micro')))
+	print("macro: {:.2f} ".format( metrics.f1_score(testy, y_pred, average='macro')))
+	print("weighted: {:.2f} ".format( metrics.f1_score(testy, y_pred, average='weighted')))
+	print("samples: {:.2f} ".format( metrics.f1_score(testy, y_pred, average='samples')))  
 
 	return accuracy
 
@@ -58,10 +66,10 @@ files = [
 '-bottle.dat',
 '-vaze.dat',
 '-metal.dat',
-# '-metal_vaze.dat',
-# '-bottle_metal.dat',
-# '-bottle_vaze.dat',
-# '-bottle_metal_vaze.dat',
+'-metal_vaze.dat',
+'-bottle_metal.dat',
+'-bottle_vaze.dat',
+'-bottle_metal_vaze.dat',
 ]
 cats = ['bottle', 'vaze', 'metal']
 train_x, train_y = prep_dataset('./csidata/2_multiple/5/train', files, cats)
