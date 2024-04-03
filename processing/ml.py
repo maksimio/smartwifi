@@ -2,8 +2,10 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM, Conv1D, MaxPooling1D, Flatten, TimeDistributed, ConvLSTM2D
 from keras import initializers, optimizers
 
+VERBOSE = 0
+
 def multilabel_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
-	verbose, epochs, batch_size = 0, 5, 16
+	verbose, epochs, batch_size = VERBOSE, 5, 16
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	model = Sequential()
 	model.add(LSTM(
@@ -32,15 +34,18 @@ def multilabel_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
 	
 	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, shuffle=True)
 	_, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=verbose)
+	# print(model.metrics_names)
+	# TODO: почему так отличается accuracy keras и sk_learn???
+	# exit()
 
-	y_pred = model.predict(testX)
+	y_pred = model.predict(testX, verbose=verbose)
 	y_pred = y_pred > 0.5
 	# result = multilabel_confusion_matrix(testy, y_pred)
 	return accuracy, y_pred
 
 def CNN_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
 	# define model
-	verbose, epochs, batch_size = 0, 5, 16
+	verbose, epochs, batch_size = VERBOSE, 5, 16
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	# reshape data into time steps of sub-sequences
 	n_steps, n_length = -1, 32
@@ -66,6 +71,34 @@ def CNN_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
 
 	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose)
 	_, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=verbose)
-	y_pred = model.predict(testX)
+	y_pred = model.predict(testX, verbose=verbose)
+	y_pred = y_pred > 0.5
+	return accuracy, y_pred
+
+def Conv_LSTM2D(trainX, trainy, testX, testy, isMultilabel: bool):
+	# define model
+	verbose, epochs, batch_size = VERBOSE, 5, 16
+	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
+	# reshape into subsequences (samples, time steps, rows, cols, channels)
+	n_steps, n_length = -1, 32
+	trainX = trainX.reshape((trainX.shape[0], n_steps, 1, n_length, n_features))
+	testX = testX.reshape((testX.shape[0], n_steps, 1, n_length, n_features))
+	# define model
+	model = Sequential()
+	model.add(ConvLSTM2D(filters=64, kernel_size=(1,3), activation='relu', input_shape=(trainX.shape[1], 1, n_length, n_features)))
+	model.add(Dropout(0.5))
+	model.add(Flatten())
+	model.add(Dense(100, activation='relu'))
+
+	if isMultilabel:
+		model.add(Dense(n_outputs, activation='sigmoid'))
+		model.compile(loss='binary_crossentropy', optimizer=optimizers.SGD(momentum=0.6), metrics=['accuracy'])
+	else:
+		model.add(Dense(n_outputs, activation='softmax'))
+		model.compile(loss='categorical_crossentropy', optimizer=optimizers.SGD(momentum=0.4), metrics=['accuracy'])
+
+	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose)
+	_, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=0)
+	y_pred = model.predict(testX, verbose=verbose)
 	y_pred = y_pred > 0.5
 	return accuracy, y_pred
