@@ -63,3 +63,4 @@ def norm(arr: np.array):
     # return scaler.fit_transform(arr.T).T
     # return arr / np.max(arr)
     return arr / 500
+
