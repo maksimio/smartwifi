@@ -62,21 +62,29 @@ train_x_mc, train_y_mc = prep_dataset_multiclass('./csidata/2_multiple/5/train',
 test_x_mc, test_y_mc = prep_dataset_multiclass('./csidata/2_multiple/5/test', files)
 
 for i in range(10):
-  # accuracy, y_pred = ml.multilabel_LSTM(train_x_ml ,train_y_ml, test_x_ml, test_y_ml, True)
-  # print_metrics(str(i) + ') ML---LSTM', accuracy, test_y_ml, y_pred)
+	print()
 	
-  # accuracy, y_pred = ml.multilabel_LSTM(train_x_mc ,train_y_mc, test_x_mc, test_y_mc, False)
-  # print_metrics(str(i) + ') MC---LSTM', accuracy, test_y_mc, y_pred)
+  accuracy, y_pred = ml.multilabel_LSTM(train_x_ml ,train_y_ml, test_x_ml, test_y_ml, True)
+  print_metrics(str(i) + ') ML---LSTM', accuracy, test_y_ml, y_pred)
+	
+  accuracy, y_pred = ml.multilabel_LSTM(train_x_mc ,train_y_mc, test_x_mc, test_y_mc, False)
+  print_metrics(str(i) + ') MC---LSTM', accuracy, test_y_mc, y_pred)
 
-  # accuracy, y_pred = ml.CNN_LSTM(train_x_ml ,train_y_ml, test_x_ml, test_y_ml, True)
-  # print_metrics(str(i) + ') ML---CNN_LSTM', accuracy, test_y_ml, y_pred)
+  accuracy, y_pred = ml.CNN_LSTM(train_x_ml ,train_y_ml, test_x_ml, test_y_ml, True)
+  print_metrics(str(i) + ') ML---CNN_LSTM', accuracy, test_y_ml, y_pred)
   
-  # accuracy, y_pred = ml.CNN_LSTM(train_x_mc ,train_y_mc, test_x_mc, test_y_mc, False)
-  # print_metrics(str(i) + ') MC---CNN_LSTM', accuracy, test_y_mc, y_pred)
+  accuracy, y_pred = ml.CNN_LSTM(train_x_mc ,train_y_mc, test_x_mc, test_y_mc, False)
+  print_metrics(str(i) + ') MC---CNN_LSTM', accuracy, test_y_mc, y_pred)
 	
   accuracy, y_pred = ml.Conv_LSTM2D(train_x_ml ,train_y_ml, test_x_ml, test_y_ml, True)
   print_metrics(str(i) + ') ML---ConvLSTM2D', accuracy, test_y_ml, y_pred)
   
   accuracy, y_pred = ml.Conv_LSTM2D(train_x_mc ,train_y_mc, test_x_mc, test_y_mc, False)
   print_metrics(str(i) + ') MC---ConvLSTM2D', accuracy, test_y_mc, y_pred)
+	
+  accuracy, y_pred = ml.CNN(train_x_ml ,train_y_ml, test_x_ml, test_y_ml, True)
+  print_metrics(str(i) + ') ML---CNN', accuracy, test_y_ml, y_pred)
+  
+  accuracy, y_pred = ml.CNN(train_x_mc ,train_y_mc, test_x_mc, test_y_mc, False)
+  print_metrics(str(i) + ') MC---CNN', accuracy, test_y_mc, y_pred)
 
