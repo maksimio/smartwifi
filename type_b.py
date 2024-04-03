@@ -52,7 +52,7 @@ def prep_dataset(rootdir: str, files, cats):
 	for f in files:
 		csi = read.getCSI(files[f][0].path)
 		csi = process.extractAm(csi.reshape(csi.shape[0], -1))
-		# csi = process.filter1dUniform(csi, 15, 0)
+		csi = process.filter1dUniform(csi, 15, 0)
 		csi = process.norm(csi)
 		csi = process.to_timeseries(csi)
 		Y = np.concatenate([Y, np.tile([c in f for c in cats], (csi.shape[0], 1))])
