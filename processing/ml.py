@@ -54,14 +54,14 @@ def CNN_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
 	testX = testX.reshape((testX.shape[0], n_steps, n_length, n_features))
 	# define model
 	model = Sequential()
-	model.add(TimeDistributed(Conv1D(filters=64, kernel_size=3, activation='relu'), input_shape=(None,n_length,n_features)))
-	model.add(TimeDistributed(Conv1D(filters=64, kernel_size=3, activation='relu')))
+	model.add(TimeDistributed(Conv1D(filters=64, kernel_size=3, activation='elu'), input_shape=(None,n_length,n_features)))
+	# model.add(TimeDistributed(Conv1D(filters=64, kernel_size=3, activation='relu')))
 	model.add(TimeDistributed(Dropout(0.5)))
 	model.add(TimeDistributed(MaxPooling1D(pool_size=2)))
 	model.add(TimeDistributed(Flatten()))
-	model.add(LSTM(10, recurrent_dropout=0.3, dropout=0.4))
-	model.add(Dropout(0.3))
-	model.add(Dense(100, activation='relu'))
+	model.add(LSTM(80, recurrent_dropout=0.3, dropout=0.4))
+	model.add(Dropout(0.4))
+	model.add(Dense(50, activation='relu'))
 
 	if isMultilabel:
 		model.add(Dense(n_outputs, activation='sigmoid'))
@@ -115,7 +115,7 @@ def CNN(trainX, trainy, testX, testy, isMultilabel: bool, useChannels: bool):
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 
 	model = Sequential()
-	model.add(Conv2D(filters=32, kernel_size=(3, 3), activation='relu', input_shape=(n_timesteps, n_features, channels)))
+	model.add(Conv2D(filters=32, kernel_size=(3, 3), activation='elu', input_shape=(n_timesteps, n_features, channels)))
 	# model.add(Conv2D(filters=32, kernel_size=3, padding='same', activation='relu'))
 	model.add(MaxPooling2D(pool_size=(2, 2)))
 
