@@ -25,7 +25,8 @@ def prep_dataset_multilabel(rootdir: str, files, cats):
 	Y, X, i = np.empty((0, len(cats))), np.empty((0, 64, 224)), 0
 	for f in files:
 		csi = read.getCSI(files[f][0].path)
-		csi = process.extractAm(csi.reshape(csi.shape[0], -1))
+		print(csi.shape)
+		csi = process.extractAm(csi.reshape(csi.shape[0], -1, order='F'))
 		csi = process.filter1dUniform(csi, 15, 0)
 		csi = process.norm(csi)
 		csi = process.to_timeseries(csi)
@@ -58,33 +59,33 @@ cats = ['bottle', 'vaze', 'metal']
 train_x_ml, train_y_ml = prep_dataset_multilabel('./csidata/2_multiple/5/train', files, cats)
 test_x_ml, test_y_ml = prep_dataset_multilabel('./csidata/2_multiple/5/test', files, cats)
 
-train_x_mc, train_y_mc = prep_dataset_multiclass('./csidata/2_multiple/5/train', files)
-test_x_mc, test_y_mc = prep_dataset_multiclass('./csidata/2_multiple/5/test', files)
+# train_x_mc, train_y_mc = prep_dataset_multiclass('./csidata/2_multiple/5/train', files)
+# test_x_mc, test_y_mc = prep_dataset_multiclass('./csidata/2_multiple/5/test', files)
 
 for i in range(10):
-	print()
+	# accuracy, y_pred = ml.my_LSTM(train_x_ml ,train_y_ml, test_x_ml, test_y_ml, True)
+	# print_metrics(str(i) + ') ML---LSTM', accuracy, test_y_ml, y_pred)
 	
-  accuracy, y_pred = ml.multilabel_LSTM(train_x_ml ,train_y_ml, test_x_ml, test_y_ml, True)
-  print_metrics(str(i) + ') ML---LSTM', accuracy, test_y_ml, y_pred)
-	
-  accuracy, y_pred = ml.multilabel_LSTM(train_x_mc ,train_y_mc, test_x_mc, test_y_mc, False)
-  print_metrics(str(i) + ') MC---LSTM', accuracy, test_y_mc, y_pred)
+	# accuracy, y_pred = ml.multilabel_LSTM(train_x_mc ,train_y_mc, test_x_mc, test_y_mc, False)
+	# print_metrics(str(i) + ') MC---LSTM', accuracy, test_y_mc, y_pred)
 
-  accuracy, y_pred = ml.CNN_LSTM(train_x_ml ,train_y_ml, test_x_ml, test_y_ml, True)
-  print_metrics(str(i) + ') ML---CNN_LSTM', accuracy, test_y_ml, y_pred)
-  
-  accuracy, y_pred = ml.CNN_LSTM(train_x_mc ,train_y_mc, test_x_mc, test_y_mc, False)
-  print_metrics(str(i) + ') MC---CNN_LSTM', accuracy, test_y_mc, y_pred)
-	
-  accuracy, y_pred = ml.Conv_LSTM2D(train_x_ml ,train_y_ml, test_x_ml, test_y_ml, True)
-  print_metrics(str(i) + ') ML---ConvLSTM2D', accuracy, test_y_ml, y_pred)
-  
-  accuracy, y_pred = ml.Conv_LSTM2D(train_x_mc ,train_y_mc, test_x_mc, test_y_mc, False)
-  print_metrics(str(i) + ') MC---ConvLSTM2D', accuracy, test_y_mc, y_pred)
-	
-  accuracy, y_pred = ml.CNN(train_x_ml ,train_y_ml, test_x_ml, test_y_ml, True)
-  print_metrics(str(i) + ') ML---CNN', accuracy, test_y_ml, y_pred)
-  
-  accuracy, y_pred = ml.CNN(train_x_mc ,train_y_mc, test_x_mc, test_y_mc, False)
-  print_metrics(str(i) + ') MC---CNN', accuracy, test_y_mc, y_pred)
+	# accuracy, y_pred = ml.CNN_LSTM(train_x_ml ,train_y_ml, test_x_ml, test_y_ml, True)
+	# print_metrics(str(i) + ') ML---CNN_LSTM', accuracy, test_y_ml, y_pred)
+
+	# accuracy, y_pred = ml.CNN_LSTM(train_x_mc ,train_y_mc, test_x_mc, test_y_mc, False)
+	# print_metrics(str(i) + ') MC---CNN_LSTM', accuracy, test_y_mc, y_pred)
+
+	# accuracy, y_pred = ml.Conv_LSTM2D(train_x_ml ,train_y_ml, test_x_ml, test_y_ml, True)
+	# print_metrics(str(i) + ') ML---ConvLSTM2D', accuracy, test_y_ml, y_pred)
+
+	# accuracy, y_pred = ml.Conv_LSTM2D(train_x_mc ,train_y_mc, test_x_mc, test_y_mc, False)
+	# print_metrics(str(i) + ') MC---ConvLSTM2D', accuracy, test_y_mc, y_pred)
+
+	accuracy, y_pred = ml.CNN(train_x_ml ,train_y_ml, test_x_ml, test_y_ml, True, False)
+	print_metrics(str(i) + ') ML---CNN', accuracy, test_y_ml, y_pred)
+
+	# accuracy, y_pred = ml.CNN(train_x_mc ,train_y_mc, test_x_mc, test_y_mc, False)
+	# print_metrics(str(i) + ') MC---CNN', accuracy, test_y_mc, y_pred)
+
+	print()
 

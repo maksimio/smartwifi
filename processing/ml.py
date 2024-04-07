@@ -5,7 +5,7 @@ import numpy as np
 
 VERBOSE = 0
 
-def multilabel_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
+def my_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
 	verbose, epochs, batch_size = VERBOSE, 5, 16
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	model = Sequential()
@@ -104,12 +104,18 @@ def Conv_LSTM2D(trainX, trainy, testX, testy, isMultilabel: bool):
 	y_pred = y_pred > 0.5
 	return accuracy, y_pred
 
-def CNN(trainX, trainy, testX, testy, isMultilabel: bool):
-	verbose, epochs, batch_size = VERBOSE, 5, 16
-	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]	
+def CNN(trainX, trainy, testX, testy, isMultilabel: bool, useChannels: bool):
+	verbose, epochs, batch_size, channels = VERBOSE, 5, 16, 1
+
+	if useChannels:
+		trainX = np.reshape(trainX, (trainX.shape[0], trainX.shape[1], 56, 4))
+		testX = np.reshape(testX, (testX.shape[0], testX.shape[1], 56, 4))
+		channels = 4
+
+	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 
 	model = Sequential()
-	model.add(Conv2D(filters=32, kernel_size=(3, 3), activation='relu', input_shape=(n_timesteps, n_features, 1)))
+	model.add(Conv2D(filters=32, kernel_size=(3, 3), activation='relu', input_shape=(n_timesteps, n_features, channels)))
 	# model.add(Conv2D(filters=32, kernel_size=3, padding='same', activation='relu'))
 	model.add(MaxPooling2D(pool_size=(2, 2)))
 
