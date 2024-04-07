@@ -9,7 +9,7 @@ def prep_dataset_multiclass(rootdir: str, cats):
 	Y, X, i = np.empty(0), np.empty((0, 128, 224)), 0
 	for c in cats:
 		csi = read.getCSI(cats[c][0].path)
-		csi = process.extractAm(csi.reshape(csi.shape[0], -1))
+		csi = process.extractAm(csi.reshape(csi.shape[0], -1, order='F'))
 		csi = process.filter1dUniform(csi, 15, 0)
 		csi = process.norm(csi)
 		csi = process.to_timeseries(csi)

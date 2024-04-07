@@ -1,12 +1,13 @@
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM, Conv1D, MaxPooling1D, Flatten, TimeDistributed, ConvLSTM2D, Conv2D, MaxPooling2D
-from keras import initializers, optimizers
+from keras import initializers, optimizers, callbacks
 import numpy as np
 
 VERBOSE = 0
+cb = callbacks.EarlyStopping(monitor='accuracy', patience=1, start_from_epoch=4)
 
 def my_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
-	verbose, epochs, batch_size = VERBOSE, 5, 16
+	verbose, epochs, batch_size = VERBOSE, 25, 16
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	model = Sequential()
 	model.add(LSTM(
@@ -33,7 +34,7 @@ def my_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
 		model.add(Dense(n_outputs, activation='softmax'))
 		model.compile(loss='categorical_crossentropy', optimizer=optimizers.SGD(momentum=0.4), metrics=['accuracy'])
 	
-	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, shuffle=True)
+	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, shuffle=True, callbacks=[cb])
 	_, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=verbose)
 
 	y_pred = model.predict(testX, verbose=verbose)
@@ -41,7 +42,7 @@ def my_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
 
 def CNN_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
 	# define model
-	verbose, epochs, batch_size = VERBOSE, 5, 16
+	verbose, epochs, batch_size = VERBOSE, 25, 16
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	# reshape data into time steps of sub-sequences
 	n_steps, n_length = -1, 32
@@ -65,14 +66,14 @@ def CNN_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
 		model.add(Dense(n_outputs, activation='softmax'))
 		model.compile(loss='categorical_crossentropy', optimizer=optimizers.SGD(momentum=0.4), metrics=['accuracy'])
 
-	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose)
+	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, callbacks=[cb])
 	_, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=verbose)
 	y_pred = model.predict(testX, verbose=verbose)
 	return accuracy, y_pred
 
 def Conv_LSTM2D(trainX, trainy, testX, testy, isMultilabel: bool):
 	# define model
-	verbose, epochs, batch_size = VERBOSE, 5, 16
+	verbose, epochs, batch_size = VERBOSE, 25, 16
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	# reshape into subsequences (samples, time steps, rows, cols, channels)
 	n_steps, n_length = -1, 32
@@ -92,13 +93,13 @@ def Conv_LSTM2D(trainX, trainy, testX, testy, isMultilabel: bool):
 		model.add(Dense(n_outputs, activation='softmax'))
 		model.compile(loss='categorical_crossentropy', optimizer=optimizers.SGD(momentum=0.4), metrics=['accuracy'])
 
-	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose)
+	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, callbacks=[cb])
 	_, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=0)
 	y_pred = model.predict(testX, verbose=verbose)
 	return accuracy, y_pred
 
 def CNN(trainX, trainy, testX, testy, isMultilabel: bool, useChannels: bool):
-	verbose, epochs, batch_size, channels = VERBOSE, 5, 16, 1
+	verbose, epochs, batch_size, channels = VERBOSE, 25, 16, 1
 
 	if useChannels:
 		trainX = np.reshape(trainX, (trainX.shape[0], trainX.shape[1], 56, 4))
@@ -129,7 +130,7 @@ def CNN(trainX, trainy, testX, testy, isMultilabel: bool, useChannels: bool):
 		model.add(Dense(n_outputs, activation='softmax'))
 		model.compile(loss='categorical_crossentropy', optimizer=optimizers.SGD(momentum=0.4), metrics=['accuracy'])
 
-	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose)
+	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, callbacks=[cb])
 	_, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=0)
 	y_pred = model.predict(testX, verbose=verbose)
 	return accuracy, y_pred
