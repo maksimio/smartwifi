@@ -35,13 +35,8 @@ def my_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
 	
 	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, shuffle=True)
 	_, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=verbose)
-	# print(model.metrics_names)
-	# TODO: почему так отличается accuracy keras и sk_learn???
-	# exit()
 
 	y_pred = model.predict(testX, verbose=verbose)
-	y_pred = y_pred > 0.5
-	# result = multilabel_confusion_matrix(testy, y_pred)
 	return accuracy, y_pred
 
 def CNN_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
@@ -73,7 +68,6 @@ def CNN_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
 	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose)
 	_, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=verbose)
 	y_pred = model.predict(testX, verbose=verbose)
-	y_pred = y_pred > 0.5
 	return accuracy, y_pred
 
 def Conv_LSTM2D(trainX, trainy, testX, testy, isMultilabel: bool):
@@ -101,7 +95,6 @@ def Conv_LSTM2D(trainX, trainy, testX, testy, isMultilabel: bool):
 	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose)
 	_, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=0)
 	y_pred = model.predict(testX, verbose=verbose)
-	y_pred = y_pred > 0.5
 	return accuracy, y_pred
 
 def CNN(trainX, trainy, testX, testy, isMultilabel: bool, useChannels: bool):
@@ -139,5 +132,4 @@ def CNN(trainX, trainy, testX, testy, isMultilabel: bool, useChannels: bool):
 	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose)
 	_, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=0)
 	y_pred = model.predict(testX, verbose=verbose)
-	y_pred = y_pred > 0.5
 	return accuracy, y_pred
