@@ -35,6 +35,7 @@ def prep_dataset_multilabel(rootdir: str, files, cats):
 	
 	return X, Y
 
+
 def print_metrics_ML(prefix: str, accuracy, test, y_pred):
 	pred = y_pred > 0.5
 	micro = metrics.f1_score(test, pred, average='micro')
@@ -61,9 +62,26 @@ files = [
 cats = ['bottle', 'vaze', 'metal']
 train_x_ml, train_y_ml = prep_dataset_multilabel('./csidata/2_multiple/5/train', files, cats)
 test_x_ml, test_y_ml = prep_dataset_multilabel('./csidata/2_multiple/5/test', files, cats)
-
 train_x_mc, train_y_mc = prep_dataset_multiclass('./csidata/2_multiple/5/train', files)
 test_x_mc, test_y_mc = prep_dataset_multiclass('./csidata/2_multiple/5/test', files)
+
+
+res = np.empty((0, test_y_ml.shape[0]))
+for i in range(len(cats)):
+	train = to_categorical(train_y_ml[:, i])
+	test = to_categorical(test_y_ml[:, i])
+	accuracy, y_pred = ml.CNN_LSTM(train_x_ml ,train, test_x_ml, test, False)
+	result = y_pred[:, 1]
+	result = np.reshape(result,(1, result.size))
+	res = np.concatenate([res, result])
+	# print_metrics_MC(str(i) + ') ---LSTM', accuracy, test, y_pred)
+
+
+res = res.T
+print(res.shape, test_y_ml.shape)
+print_metrics_ML(str(111) + ') ---LSTM', accuracy, test_y_ml, res)
+exit()
+
 
 for i in range(10):
 	accuracy, y_pred = ml.my_LSTM(train_x_ml ,train_y_ml, test_x_ml, test_y_ml, True)

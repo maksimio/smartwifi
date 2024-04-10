@@ -3,11 +3,11 @@ from keras.layers import Dense, Dropout, LSTM, Conv1D, MaxPooling1D, Flatten, Ti
 from keras import initializers, optimizers, callbacks
 import numpy as np
 
-VERBOSE = 0
+VERBOSE = 1
 cb = callbacks.EarlyStopping(monitor='accuracy', patience=1, start_from_epoch=4)
 
 def my_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
-	verbose, epochs, batch_size = VERBOSE, 25, 16
+	verbose, epochs, batch_size = VERBOSE, 1, 16
 	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
 	model = Sequential()
 	model.add(LSTM(
