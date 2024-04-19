@@ -21,6 +21,18 @@ def prep_dataset_class_label(rootdir: str, files, cats):
 	
 	return X, to_categorical(Y_mc), Y_ml
 
+def convert_mc2ml(mc):
+	a = np.argmax(mc, axis=1)
+	m = np.ndarray((a.shape[0], len(cats)))
+	m.fill(0)
+	for i in range(m.shape[0]):
+		metal = a[i] == 3 or a[i] == 4 or a[i] == 5 or a[i] == 7
+		bottle = a[i] == 1 or a[i] == 5 or a[i] == 6 or a[i] == 7
+		vaze = a[i] == 2 or a[i] == 4 or a[i] == 6 or a[i] == 7
+		m[i] = [bottle, vaze, metal]
+
+	return m.astype(int)
+
 def print_metrics_ML(prefix: str, accuracy, test, y_pred):
 	pred = y_pred > 0.5
 	micro = metrics.f1_score(test, pred, average='micro')
@@ -59,37 +71,42 @@ files = [
 cats = ['bottle', 'vaze', 'metal']
 
 train_x, train_y_mc, train_y_ml = prep_dataset_class_label('./csidata/2_multiple/5/train', files, cats)
+print_metrics_ML(') ---MYTEST', 0, train_y_ml, convert_mc2ml(train_y_mc))
 test_x, test_y_mc, test_y_ml = prep_dataset_class_label('./csidata/2_multiple/5/test', files, cats)
 
 
 for i in range(10): # l - label, c - class, s - single
 	accuracy, y_pred = ml_single(ml.my_LSTM, train_x ,train_y_ml, test_x, test_y_ml, False)
 	print_metrics_ML(str(i) + ') ---LSTM-S', accuracy, test_y_ml, y_pred)
-	# accuracy, y_pred = ml.my_LSTM(train_x ,train_y_ml, test_x, test_y_ml, True)
-	# print_metrics_ML(str(i) + ') ---LSTM-L', accuracy, test_y_ml, y_pred)
-	# accuracy, y_pred = ml.my_LSTM(train_x ,train_y_mc, test_x, test_y_mc, False)
-	# print_metrics_MC(str(i) + ') ---LSTM-C', accuracy, test_y_mc, y_pred)
+	accuracy, y_pred = ml.my_LSTM(train_x ,train_y_ml, test_x, test_y_ml, True)
+	print_metrics_ML(str(i) + ') ---LSTM-L', accuracy, test_y_ml, y_pred)
+	accuracy, y_pred = ml.my_LSTM(train_x ,train_y_mc, test_x, test_y_mc, False)
+	print_metrics_MC(str(i) + ') ---LSTM-C', accuracy, test_y_mc, y_pred)
+	print_metrics_ML(str(i) + ') ---LSTM-C2', accuracy, test_y_ml, convert_mc2ml(y_pred))
 
 	accuracy, y_pred = ml_single(ml.CNN_LSTM, train_x ,train_y_ml, test_x, test_y_ml, False)
 	print_metrics_ML(str(i) + ') ---CNN_LSTM-S', accuracy, test_y_ml, y_pred)
-	# accuracy, y_pred = ml.CNN_LSTM(train_x ,train_y_ml, test_x, test_y_ml, True)
-	# print_metrics_ML(str(i) + ') ---CNN_LSTM-L', accuracy, test_y_ml, y_pred)
-	# accuracy, y_pred = ml.CNN_LSTM(train_x ,train_y_mc, test_x, test_y_mc, False)
-	# print_metrics_MC(str(i) + ') ---CNN_LSTM-C', accuracy, test_y_mc, y_pred)
+	accuracy, y_pred = ml.CNN_LSTM(train_x ,train_y_ml, test_x, test_y_ml, True)
+	print_metrics_ML(str(i) + ') ---CNN_LSTM-L', accuracy, test_y_ml, y_pred)
+	accuracy, y_pred = ml.CNN_LSTM(train_x ,train_y_mc, test_x, test_y_mc, False)
+	print_metrics_MC(str(i) + ') ---CNN_LSTM-C', accuracy, test_y_mc, y_pred)
+	print_metrics_ML(str(i) + ') ---CNN_LSTM-C2', accuracy, test_y_ml, convert_mc2ml(y_pred))
 
 	accuracy, y_pred = ml_single(ml.Conv_LSTM2D, train_x ,train_y_ml, test_x, test_y_ml, False)
 	print_metrics_ML(str(i) + ') ---ConvLSTM2D-S', accuracy, test_y_ml, y_pred)
-	# accuracy, y_pred = ml.Conv_LSTM2D(train_x ,train_y_ml, test_x, test_y_ml, True)
-	# print_metrics_ML(str(i) + ') ---ConvLSTM2D-L', accuracy, test_y_ml, y_pred)
-	# accuracy, y_pred = ml.Conv_LSTM2D(train_x ,train_y_mc, test_x, test_y_mc, False)
-	# print_metrics_MC(str(i) + ') ---ConvLSTM2D-C', accuracy, test_y_mc, y_pred)
+	accuracy, y_pred = ml.Conv_LSTM2D(train_x ,train_y_ml, test_x, test_y_ml, True)
+	print_metrics_ML(str(i) + ') ---ConvLSTM2D-L', accuracy, test_y_ml, y_pred)
+	accuracy, y_pred = ml.Conv_LSTM2D(train_x ,train_y_mc, test_x, test_y_mc, False)
+	print_metrics_MC(str(i) + ') ---ConvLSTM2D-C', accuracy, test_y_mc, y_pred)
+	print_metrics_ML(str(i) + ') ---ConvLSTM2D-C2', accuracy, test_y_ml, convert_mc2ml(y_pred))
 
 	accuracy, y_pred = ml_single(ml.CNN, train_x ,train_y_ml, test_x, test_y_ml, False, True)
 	print_metrics_ML(str(i) + ') ---CNN-S', accuracy, test_y_ml, y_pred)
-	# accuracy, y_pred = ml.CNN(train_x ,train_y_ml, test_x, test_y_ml, True, True)
-	# print_metrics_ML(str(i) + ') ---CNN-L', accuracy, test_y_ml, y_pred)
-	# accuracy, y_pred = ml.CNN(train_x ,train_y_mc, test_x, test_y_mc, False, True)
-	# print_metrics_MC(str(i) + ') ---CNN-C', accuracy, test_y_mc, y_pred)
+	accuracy, y_pred = ml.CNN(train_x ,train_y_ml, test_x, test_y_ml, True, True)
+	print_metrics_ML(str(i) + ') ---CNN-L', accuracy, test_y_ml, y_pred)
+	accuracy, y_pred = ml.CNN(train_x ,train_y_mc, test_x, test_y_mc, False, True)
+	print_metrics_MC(str(i) + ') ---CNN-C', accuracy, test_y_mc, y_pred)
+	print_metrics_ML(str(i) + ') ---CNN-C2', accuracy, test_y_ml, convert_mc2ml(y_pred))
 
 	print()
 
