@@ -1,16 +1,17 @@
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, LSTM, Conv1D, MaxPooling1D, Flatten, TimeDistributed, ConvLSTM2D, Conv2D, MaxPooling2D
+from keras.layers import Dense, Dropout, LSTM, Flatten, TimeDistributed, ConvLSTM2D, Conv2D, MaxPooling2D
 from keras import initializers, optimizers, callbacks
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
 
-VERBOSE = 1
+VERBOSE = 0
+EPOCHS = 25
+BATCH_SIZE = 128
 cb = callbacks.EarlyStopping(monitor='accuracy', patience=1, start_from_epoch=4)
 
-def my_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
-  verbose, epochs, batch_size = VERBOSE, 30, 16
+def RNN(trainX, trainy, testX, testy, isMultilabel: bool):
   n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
   model = Sequential()
   model.add(LSTM(
@@ -37,37 +38,38 @@ def my_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
     model.add(Dense(n_outputs, activation='softmax'))
     model.compile(loss='categorical_crossentropy', optimizer=optimizers.SGD(momentum=0.4), metrics=['accuracy'])
   
-  history = model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, shuffle=True)
-  plt_x = [*range(1, epochs + 1)]
-  plt.plot(plt_x, history.history['accuracy'], marker='o', color='m')
-  plt.plot(plt_x, history.history['loss'], marker='x', color='g')
-  plt.ylabel('Показатель')
-  plt.xlabel('№ эпохи обучения')
-  plt.grid()
-  plt.legend(['Точность (accuracy)', 'Потери (loss)'], loc='lower left')
-  plt.savefig('out1.png')
-  exit()
+  history = model.fit(trainX, trainy, epochs=EPOCHS, batch_size=BATCH_SIZE, verbose=VERBOSE, shuffle=True, callbacks=[cb])
+  # plt_x = [*range(1, epochs + 1)]
+  # plt.plot(plt_x, history.history['accuracy'], marker='o', color='m')
+  # plt.plot(plt_x, history.history['loss'], marker='x', color='g')
+  # plt.ylabel('Показатель')
+  # plt.xlabel('№ эпохи обучения')
+  # plt.grid()
+  # plt.legend(['Точность (accuracy)', 'Потери (loss)'], loc='lower left')
+  # plt.savefig('out1.png')
+  # exit()
   
-  _, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=verbose)
+  _, accuracy = model.evaluate(testX, testy, batch_size=BATCH_SIZE, verbose=VERBOSE)
 
-  y_pred = model.predict(testX, verbose=verbose)
+  y_pred = model.predict(testX, verbose=VERBOSE)
   return accuracy, y_pred
 
-def CNN_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
-  # define model
-  verbose, epochs, batch_size = VERBOSE, 25, 16
-  n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
-  # reshape data into time steps of sub-sequences
-  n_steps, n_length = -1, 4
-  trainX = trainX.reshape((trainX.shape[0], n_steps, n_length, n_features))
-  testX = testX.reshape((testX.shape[0], n_steps, n_length, n_features))
-  # define model
+def CRNN(trainX, trainy, testX, testy, isMultilabel: bool, useChannels: bool):
+  channels = 1
+  n_steps, n_length = -1, 8
+  
+  if useChannels:
+    trainX = np.reshape(trainX, (trainX.shape[0], n_steps, n_length, 56, 4))
+    testX = np.reshape(testX, (testX.shape[0], n_steps, n_length, 56, 4))
+    channels = 4
+
+  n_timesteps, n_features, n_outputs = trainX.shape[2], trainX.shape[3], trainy.shape[1]
+
   model = Sequential()
-  model.add(TimeDistributed(Conv1D(filters=64, kernel_size=3, activation='elu'), input_shape=(None,n_length,n_features)))
-  # model.add(TimeDistributed(Conv1D(filters=64, kernel_size=3, activation='relu')))
-  model.add(TimeDistributed(Dropout(0.5)))
-  model.add(TimeDistributed(MaxPooling1D(pool_size=2)))
+  model.add(TimeDistributed(Conv2D(filters=64, kernel_size=(3, 3), activation='elu', input_shape=(n_timesteps, n_features, channels))))
+  model.add(TimeDistributed(MaxPooling2D(pool_size=(2, 2))))
   model.add(TimeDistributed(Flatten()))
+  model.add(Dropout(0.6))
   model.add(LSTM(80, recurrent_dropout=0.3, dropout=0.4))
   model.add(Dropout(0.4))
   model.add(Dense(50, activation='relu'))
@@ -79,40 +81,13 @@ def CNN_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
     model.add(Dense(n_outputs, activation='softmax'))
     model.compile(loss='categorical_crossentropy', optimizer=optimizers.SGD(momentum=0.4), metrics=['accuracy'])
 
-  model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, callbacks=[cb])
-  _, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=verbose)
-  y_pred = model.predict(testX, verbose=verbose)
-  return accuracy, y_pred
-
-def Conv_LSTM2D(trainX, trainy, testX, testy, isMultilabel: bool):
-  # define model
-  verbose, epochs, batch_size = VERBOSE, 25, 16
-  n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
-  # reshape into subsequences (samples, time steps, rows, cols, channels)
-  n_steps, n_length = -1, 4
-  trainX = trainX.reshape((trainX.shape[0], n_steps, 1, n_length, n_features))
-  testX = testX.reshape((testX.shape[0], n_steps, 1, n_length, n_features))
-  # define model
-  model = Sequential()
-  model.add(ConvLSTM2D(filters=64, kernel_size=(1,3), activation='relu', input_shape=(trainX.shape[1], 1, n_length, n_features)))
-  model.add(Dropout(0.5))
-  model.add(Flatten())
-  model.add(Dense(100, activation='relu'))
-
-  if isMultilabel:
-    model.add(Dense(n_outputs, activation='sigmoid'))
-    model.compile(loss='binary_crossentropy', optimizer=optimizers.SGD(momentum=0.6), metrics=['accuracy'])
-  else:
-    model.add(Dense(n_outputs, activation='softmax'))
-    model.compile(loss='categorical_crossentropy', optimizer=optimizers.SGD(momentum=0.4), metrics=['accuracy'])
-
-  model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, callbacks=[cb])
-  _, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=0)
-  y_pred = model.predict(testX, verbose=verbose)
+  model.fit(trainX, trainy, epochs=EPOCHS, batch_size=BATCH_SIZE, verbose=VERBOSE, callbacks=[cb])
+  _, accuracy = model.evaluate(testX, testy, batch_size=BATCH_SIZE, verbose=VERBOSE)
+  y_pred = model.predict(testX, verbose=VERBOSE)
   return accuracy, y_pred
 
 def CNN(trainX, trainy, testX, testy, isMultilabel: bool, useChannels: bool):
-  verbose, epochs, batch_size, channels = VERBOSE, 25, 16, 1
+  channels = 1
 
   if useChannels:
     trainX = np.reshape(trainX, (trainX.shape[0], trainX.shape[1], 56, 4))
@@ -123,7 +98,6 @@ def CNN(trainX, trainy, testX, testy, isMultilabel: bool, useChannels: bool):
 
   model = Sequential()
   model.add(Conv2D(filters=32, kernel_size=(3, 3), activation='elu', input_shape=(n_timesteps, n_features, channels)))
-  # model.add(Conv2D(filters=32, kernel_size=3, padding='same', activation='relu'))
   model.add(MaxPooling2D(pool_size=(2, 2)))
 
   model.add(Flatten())
@@ -143,7 +117,7 @@ def CNN(trainX, trainy, testX, testy, isMultilabel: bool, useChannels: bool):
     model.add(Dense(n_outputs, activation='softmax'))
     model.compile(loss='categorical_crossentropy', optimizer=optimizers.SGD(momentum=0.4), metrics=['accuracy'])
 
-  model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, callbacks=[cb])
-  _, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=0)
-  y_pred = model.predict(testX, verbose=verbose)
+  model.fit(trainX, trainy, epochs=EPOCHS, batch_size=BATCH_SIZE, verbose=VERBOSE, callbacks=[cb])
+  _, accuracy = model.evaluate(testX, testy, batch_size=BATCH_SIZE, verbose=VERBOSE)
+  y_pred = model.predict(testX, verbose=VERBOSE)
   return accuracy, y_pred
