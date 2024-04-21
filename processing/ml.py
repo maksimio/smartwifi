@@ -2,12 +2,15 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM, Conv1D, MaxPooling1D, Flatten, TimeDistributed, ConvLSTM2D, Conv2D, MaxPooling2D
 from keras import initializers, optimizers, callbacks
 import numpy as np
+from matplotlib import pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 
-VERBOSE = 0
+VERBOSE = 1
 cb = callbacks.EarlyStopping(monitor='accuracy', patience=1, start_from_epoch=4)
 
 def my_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
-  verbose, epochs, batch_size = VERBOSE, 25, 16
+  verbose, epochs, batch_size = VERBOSE, 30, 16
   n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
   model = Sequential()
   model.add(LSTM(
@@ -34,7 +37,17 @@ def my_LSTM(trainX, trainy, testX, testy, isMultilabel: bool):
     model.add(Dense(n_outputs, activation='softmax'))
     model.compile(loss='categorical_crossentropy', optimizer=optimizers.SGD(momentum=0.4), metrics=['accuracy'])
   
-  model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, shuffle=True, callbacks=[cb])
+  history = model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, shuffle=True)
+  plt_x = [*range(1, epochs + 1)]
+  plt.plot(plt_x, history.history['accuracy'], marker='o', color='m')
+  plt.plot(plt_x, history.history['loss'], marker='x', color='g')
+  plt.ylabel('Показатель')
+  plt.xlabel('№ эпохи обучения')
+  plt.grid()
+  plt.legend(['Точность (accuracy)', 'Потери (loss)'], loc='lower left')
+  plt.savefig('out1.png')
+  exit()
+  
   _, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=verbose)
 
   y_pred = model.predict(testX, verbose=verbose)

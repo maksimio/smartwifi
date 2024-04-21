@@ -40,6 +40,8 @@ def getCSI(fpath: str) -> np.ndarray:
     data.read(endian='big')
     payload_len = np.bincount(data.payload_len).argmax()
     csi = data.csi[(data.payload_len == payload_len) & (data.nc == 2)][:, :, :2, :2]
+    print(csi.shape)
+    exit()
     return csi
 
 
