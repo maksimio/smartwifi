@@ -2,6 +2,10 @@ import numpy as np
 from sklearn import metrics
 from processing import read, process, ml
 from keras.utils import to_categorical
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import axes3d
+
+
 np.set_printoptions(edgeitems=30, linewidth=10000)
 
 SPLIT_LEN = 32
@@ -14,9 +18,26 @@ def prep_dataset_class_label(rootdir: str, files, cats):
   for f in files:
     csi = read.getCSI(files[f][0].path)
     csi = process.extractAm(csi.reshape(csi.shape[0], -1, order='F'))
-    csi = process.filter1dUniform(csi, 15, 0)
+    csi = process.filter1dUniform(csi, 3, 0)
     csi = process.norm(csi)
     csi = process.to_timeseries(csi, split_len=SPLIT_LEN, step=STEP)
+    # -----------------------------------------------------------------------
+    
+    plt.rcParams["figure.autolayout"] = True
+    ax = plt.axes(projection='3d')
+    z = csi[3,:,:]
+    print('zz', z.shape)
+    y = np.arange(len(z))
+    x = np.arange(len(z[0]))
+    (x ,y) = np.meshgrid(x,y)
+    ax.plot_surface(y,x,z, edgecolor='green', lw=0.2, rstride=4, cstride=4, alpha=0.3)
+    ax.view_init(42, 42, 0)
+    plt.savefig('kkk.png')
+    print(csi.shape)
+
+    # -----------------------------------------------------------------------
+    exit()
+
     Y_mc = np.concatenate([Y_mc, np.tile([i], csi.shape[0])])
     Y_ml = np.concatenate([Y_ml, np.tile([c in f for c in cats], (csi.shape[0], 1))])
     X = np.concatenate([X, csi])
