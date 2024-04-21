@@ -8,7 +8,7 @@ from mpl_toolkits.mplot3d import axes3d
 
 np.set_printoptions(edgeitems=30, linewidth=10000)
 
-SPLIT_LEN = 32
+SPLIT_LEN = 64
 STEP = 64
 
 def prep_dataset_class_label(rootdir: str, files, cats):
@@ -18,10 +18,10 @@ def prep_dataset_class_label(rootdir: str, files, cats):
   for f in files:
     csi = read.getCSI(files[f][0].path)
     csi = process.extractAm(csi.reshape(csi.shape[0], -1, order='F'))
-    csi = process.filter1dUniform(csi, 3, 0)
-    csi = process.norm(csi)
+    csi = process.filter1dUniform(csi, 5, 0)
+    # csi = process.norm(csi)
     csi = process.to_timeseries(csi, split_len=SPLIT_LEN, step=STEP)
-    # -----------------------------------------------------------------------
+    # -----------------------------------------------
     
     plt.rcParams["figure.autolayout"] = True
     ax = plt.axes(projection='3d')
@@ -30,12 +30,15 @@ def prep_dataset_class_label(rootdir: str, files, cats):
     y = np.arange(len(z))
     x = np.arange(len(z[0]))
     (x ,y) = np.meshgrid(x,y)
-    ax.plot_surface(y,x,z, edgecolor='green', lw=0.2, rstride=4, cstride=4, alpha=0.3)
-    ax.view_init(42, 42, 0)
-    plt.savefig('kkk.png')
+    ax.plot_surface(y,x,z, edgecolor='green', lw=0.2, rstride=2, cstride=4, alpha=0.3)
+    ax.view_init(30, -45, 0)
+    ax.set_xlabel('№ пакета')
+    ax.set_ylabel('№ поднесущей')
+    ax.set_zlabel('Амплитуда, мВт')
+    plt.savefig('kkk2.png', format='png', dpi=600)
     print(csi.shape)
 
-    # -----------------------------------------------------------------------
+    # ------------------------------------------------
     exit()
 
     Y_mc = np.concatenate([Y_mc, np.tile([i], csi.shape[0])])
