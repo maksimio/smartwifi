@@ -1,5 +1,6 @@
 import numpy as np
 from scipy import ndimage
+from sklearn.preprocessing import normalize, MinMaxScaler
 
 # Преобразование к виду 56 x 4 - амплитуды или фазы
 def reshape4x56(csi: np.ndarray) -> np.ndarray:
@@ -11,11 +12,17 @@ def reshape224x1(csi: np.ndarray) -> np.ndarray:
     csi = reshape4x56(csi)
     return np.reshape(csi, (csi.shape[0], -1))
 
-# Нарезка по первой размерности по заданному чанку (по умолчанию - квадрат).
-# Неполный чанк в конце отбрасывается
-def chunks(csi: np.ndarray, height=None) -> np.ndarray:
-    if height == None:
-        height = csi.shape[0]
+def to_timeseries(dataset, split_len = 128, step = 64):
+	'''Преобразует dataset, где первая размерность - отсчеты во времени
+	в датасет, где первая размерность - индексы для групп отсчетов во времени.
+	Увеличивает shape на 1. split_len - длина временной последовательности, step - шаг выборки временных последовательностей.
+	В случае, когда step >= split_len, выбранные последовательности не имеют пересечений'''
+	conc = np.ndarray((0, split_len, *dataset.shape[1:]))
+	count = dataset.shape[0]
+	for i, j in zip(range(0, count - split_len, step), range(split_len, count, step)):
+		d = dataset[i:j]
+		conc = np.concatenate([conc, d.reshape(1, *d.shape)])
+	return conc
 
 def extractAm(csi: np.ndarray) -> np.ndarray:
     return np.abs(csi)
@@ -38,10 +45,22 @@ def filter1dGauss(arr: np.ndarray, sigma=10, axis=-1) -> np.ndarray:
     '''Фильтр гаусса'''
     return ndimage.gaussian_filter1d(arr, sigma, axis)
 
-def filter1dUniform(arr: np.ndarray, size=10, axis=-1) -> np.ndarray:
+def filter1dUniform(arr: np.ndarray, size=100, axis=-1) -> np.ndarray:
     '''Фильтр скользящего среднего'''
     return ndimage.uniform_filter1d(arr, size, axis)
 
 def diff1d(arr: np.array, n=1, axis=-1) -> np.ndarray:
     '''Производная порядка n'''
     return np.diff(arr, n=n, axis=axis)
+
+def splitLen(arr: np.array, count: int) -> list:
+    split = np.array_split(arr, len)
+    print(split[-2].shape)
+    return 
+
+def norm(arr: np.array):
+    # scaler = MinMaxScaler(feature_range=(0, 1))
+    # return scaler.fit_transform(arr.T).T
+    # return arr / np.max(arr)
+    return arr / 500
+
