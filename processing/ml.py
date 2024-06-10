@@ -2,9 +2,6 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM, Flatten, TimeDistributed, ConvLSTM2D, Conv2D, MaxPooling2D
 from keras import initializers, optimizers, callbacks
 import numpy as np
-from matplotlib import pyplot as plt
-import matplotlib
-matplotlib.use('Agg')
 
 VERBOSE = 0
 EPOCHS = 25
@@ -38,17 +35,7 @@ def RNN(trainX, trainy, testX, testy, isMultilabel: bool):
     model.add(Dense(n_outputs, activation='softmax'))
     model.compile(loss='categorical_crossentropy', optimizer=optimizers.SGD(momentum=0.4), metrics=['accuracy'])
   
-  history = model.fit(trainX, trainy, epochs=EPOCHS, batch_size=BATCH_SIZE, verbose=VERBOSE, shuffle=True, callbacks=[cb])
-  # plt_x = [*range(1, epochs + 1)]
-  # plt.plot(plt_x, history.history['accuracy'], marker='o', color='m')
-  # plt.plot(plt_x, history.history['loss'], marker='x', color='g')
-  # plt.ylabel('Показатель')
-  # plt.xlabel('№ эпохи обучения')
-  # plt.grid()
-  # plt.legend(['Точность (accuracy)', 'Потери (loss)'], loc='lower left')
-  # plt.savefig('out1.png')
-  # exit()
-  
+  model.fit(trainX, trainy, epochs=EPOCHS, batch_size=BATCH_SIZE, verbose=VERBOSE, shuffle=True, callbacks=[cb])
   _, accuracy = model.evaluate(testX, testy, batch_size=BATCH_SIZE, verbose=VERBOSE)
 
   y_pred = model.predict(testX, verbose=VERBOSE)
@@ -72,7 +59,7 @@ def CRNN(trainX, trainy, testX, testy, isMultilabel: bool, useChannels: bool):
   model.add(Dropout(0.6))
   model.add(LSTM(80, recurrent_dropout=0.3, dropout=0.4))
   model.add(Dropout(0.4))
-  model.add(Dense(50, activation='relu'))
+  model.add(Dense(100, activation='elu'))
   
   if isMultilabel:
     model.add(Dense(n_outputs, activation='sigmoid'))
